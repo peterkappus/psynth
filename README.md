@@ -6,14 +6,10 @@ Peter's Superfun Browser-synth playground.
 - Then run
 ```
 docker run -it -p 5555:5555 -p 35729:35729 -v"$(PWD)":/app p5manager bash
-```
-
-- Inside the container run:
-```
+#Inside the container run:
 cd /app && p5 s
 ```
-- open a browser and visit http://localhost:5555
-- click the "*" and then the "." on the left and it should live reload whenever you change the code.
+- open a browser and visit http://localhost:5555/#/. (note the dot at the end)
 - NOTE the provided `.p5rc` file in the root folder to tell p5manager to look in '.' for projects
 
 ## AWS Deployment
