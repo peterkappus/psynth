@@ -5,9 +5,7 @@ Peter's Superfun Browser-synth playground.
 - First time: `docker build -t p5manager .`
 - Then run
 ```
-docker run -it -p 5555:5555 -p 35729:35729 -v"$(PWD)":/app p5manager bash
-#Inside the container run:
-cd /app && p5 s
+docker run -it -p 5555:5555 -p 35729:35729 -v"$(PWD)":/app p5manager
 ```
 - open a browser and visit http://localhost:5555/#/. (note the dot at the end)
 - NOTE the provided `.p5rc` file in the root folder to tell p5manager to look in '.' for projects
