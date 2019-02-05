@@ -18,25 +18,30 @@ function setup() {
   timeSlider = createSlider(0, maxTime, reverbTime, 1)
   timeSlider.position(50, 50);
   timeSlider.style('width', '80%');
-  reverby();
 }
 
+// One-liner to resume playback when user interacted with the page.
+document.querySelector('body').addEventListener('click', function() {
+  context.resume().then(() => {
+    console.log('Playback resumed successfully');
+  });
+});
 
-function reverby() {
+//each voice has it's own reverb (should prevent crunchy noises)
+function createVoice(time){
   //alert(")
 
+  console.log("ok");
   mic = new p5.AudioIn();
   mic.start();
 
   myVerb = new p5.Reverb();
-  myVerb.process(mic,reverbTime,1);
-
-  startRecording();
+  myVerb.process(mic,time,1);
 }
 
 function startRecording() {
   background(red_color);
-  debug('start recording');
+  //debug('start recording');
   soundFile = new p5.SoundFile();
   recorder = new p5.SoundRecorder();
   recorder.record(soundFile);
@@ -59,17 +64,12 @@ function keyPressed() {
     stopRecording();
   }
 
-  //key "s" to "set" reverb
-  //need a way to start a new reverb object...
-  //okay, but how to remove them?
+  //key "s" to "set" reverb and create a new voice (with new reverb)
+  //should prevent clipping on old reverb object
   if(keyCode == 83) {
     var reverbTime = timeSlider.value();
     debug("reverbtime: " + reverbTime)
-    myVerb.set(reverbTime);
-    /*newVerb = new p5.Reverb();
-    newVerb.process(mic,reverbTime,1);
-    reverbs.push(newVerb);
-    */
+    createVoice(reverbTime);
   }
 
   //mute "m"
