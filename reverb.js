@@ -2,11 +2,12 @@
 var muted = false;
 var reverbTime = 40;
 var maxTime = 80;
-var myVerb;
+var reverbs = [];
 var recorder;
 var red_color = "#c00";
 var gray_color = "#999";
 var timeSlider; // a slider for our reverbtime
+var mic = null; //initially...
 
 //var reverbs = [];
 
@@ -18,18 +19,35 @@ function setup() {
   timeSlider = createSlider(0, maxTime, reverbTime, 1)
   timeSlider.position(50, 50);
   timeSlider.style('width', '80%');
+    
+  startRecording();
+  createVoice(reverbTime);
 }
 
-// One-liner to resume playback when user interacted with the page.
-document.querySelector('body').addEventListener('click', function() {
-  context.resume().then(() => {
-    console.log('Playback resumed successfully');
-  });
-});
+function touchStarted() {
+  getAudioContext().resume()
+}
+
+function killAVerb() {
+  //disconnect and then remove the oldest reverb on the stack.
+  reverbs.shift().disconnect();
+}
+
+function setReverb() {
+  mic.stop();
+  mic = null;
+  var reverbTime = timeSlider.value();
+  debug("reverbtime: " + reverbTime)
+  createVoice(reverbTime);
+
+}
+
 
 //each voice has it's own reverb (should prevent crunchy noises)
 function createVoice(time){
   //alert(")
+
+  background(red_color);
 
   console.log("ok");
   mic = new p5.AudioIn();
@@ -37,10 +55,13 @@ function createVoice(time){
 
   myVerb = new p5.Reverb();
   myVerb.process(mic,time,1);
+  reverbs.push(myVerb);
+  
+  muted = false;
+
 }
 
 function startRecording() {
-  background(red_color);
   //debug('start recording');
   soundFile = new p5.SoundFile();
   recorder = new p5.SoundRecorder();
@@ -67,11 +88,21 @@ function keyPressed() {
   //key "s" to "set" reverb and create a new voice (with new reverb)
   //should prevent clipping on old reverb object
   if(keyCode == 83) {
-    var reverbTime = timeSlider.value();
-    debug("reverbtime: " + reverbTime)
-    createVoice(reverbTime);
+    setReverb();
   }
 
+
+  //K = KillaVerb
+  if(keyCode == 75) {
+    killAVerb();
+  }
+
+  // Total reverbs
+  if(keyCode == 84) {
+    console.log(reverbs.length);
+  }
+
+  
   //mute "m"
   if(keyCode == 77 ) {
     if(muted) {
