@@ -1,11 +1,12 @@
 
-var muted = false;
+var muted = true;
 var reverbTime = 40;
 var maxTime = 80;
 var reverbs = [];
 var recorder;
 var red_color = "#c00";
 var gray_color = "#999";
+var maxVerbs = 4; // start killing 'em off after we have this many
 var timeSlider; // a slider for our reverbtime
 var mic = null; //initially...
 
@@ -15,31 +16,46 @@ var mic = null; //initially...
 //press ENTER to save
 
 function setup() {
-  createCanvas(window.innerWidth,window.innerHeight);
-  timeSlider = createSlider(0, maxTime, reverbTime, 1)
+  c = createCanvas(window.innerWidth,window.innerHeight);
+  /*a = createDiv('this is some text');
+  a.style("font-size: 5rem");
+  a.parent("header");
+  a.touchStarted(setReverb);
+  a.style("width: 20%; min-height: 5rem; background: #00f");
+  */
+  
+  /*timeSlider = createSlider(0, maxTime, reverbTime, 1)
   timeSlider.position(50, 50);
   timeSlider.style('width', '80%');
+  */
     
   startRecording();
   createVoice(reverbTime);
 }
 
 function touchStarted() {
-  getAudioContext().resume()
+
 }
 
 function killAVerb() {
   //disconnect and then remove the oldest reverb on the stack.
-  reverbs.shift().disconnect();
+  /*env = new p5.Envelope();
+  env.setADSR(0, 0, 100, 20);
+  env.setRange(1, 1);
+*/
+  r = reverbs.shift()
+  r.amp(0,10);
+  console.log("fading...");
+  setTimeout(function(){console.log("killing"); r.disconnect()}, 15000);
 }
 
-function setReverb() {
+function setReverb(reverbTime) {
   mic.stop();
   mic = null;
-  var reverbTime = timeSlider.value();
+  //var reverbTime = timeSlider.value();
+  //alert('ok');
   debug("reverbtime: " + reverbTime)
   createVoice(reverbTime);
-
 }
 
 
@@ -47,17 +63,18 @@ function setReverb() {
 function createVoice(time){
   //alert(")
 
-  background(red_color);
-
-  console.log("ok");
+  if(reverbs.length > maxVerbs){
+    killAVerb();
+  }
+  
   mic = new p5.AudioIn();
-  mic.start();
-
+  //mic.start();
+  
   myVerb = new p5.Reverb();
   myVerb.process(mic,time,1);
   reverbs.push(myVerb);
-  
-  muted = false;
+
+  mute(true);
 
 }
 
@@ -77,8 +94,14 @@ function stopRecording() {
   save(soundFile, 'abstraktor.wav');
 }
 
+
 function keyPressed() {
-  //alert(keyCode);
+  //alert();
+    getAudioContext().resume()
+  //number keys
+  if (keyCode < 58 && keyCode > 47) {
+    setReverb((keyCode-48) * 10);
+  }
 
   //"Enter"
   if(keyCode == 13){
@@ -87,34 +110,42 @@ function keyPressed() {
 
   //key "s" to "set" reverb and create a new voice (with new reverb)
   //should prevent clipping on old reverb object
-  if(keyCode == 83) {
-    setReverb();
-  }
+  //if(keyCode == 83) {
+  //  setReverb();
+  //}
 
 
-  //K = KillaVerb
+  //K: KillaVerb
   if(keyCode == 75) {
     killAVerb();
   }
 
-  // Total reverbs
+  // T: Show (T)otal reverbs
   if(keyCode == 84) {
     console.log(reverbs.length);
   }
 
   
-  //mute "m"
+  //M: mute
   if(keyCode == 77 ) {
-    if(muted) {
-      mic.start();
-      background(red_color);
-      debug("listening...");
-    }else{
-      mic.stop();
-      background(gray_color);
-      debug("muted");
-    }
-    muted = !muted;
+    toggleMute();
   }
   //alert(keyCode);
+}
+
+function mute(state) {
+  muted = state;
+  if(!muted) {
+    mic.start();
+    background(red_color);
+    debug("listening...");
+  }else{
+    mic.stop();
+    background(gray_color);
+    debug("muted");
+  }
+}
+
+function toggleMute() {
+  mute(!muted);
 }
