@@ -1,7 +1,7 @@
 
 var muted = true;
 var reverbTime = 40;
-var maxTime = 80;
+var maxTime = 200;
 var reverbs = [];
 var recorder;
 var red_color = "#c00";
@@ -100,7 +100,7 @@ function keyPressed() {
     getAudioContext().resume()
   //number keys
   if (keyCode < 58 && keyCode > 47) {
-    setReverb((keyCode-48) * 10);
+    setReverb((keyCode-48) * maxTime / 10);
   }
 
   //"Enter"
